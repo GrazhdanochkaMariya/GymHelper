@@ -1,0 +1,19 @@
+.idea/
+__pycache__/
+.vscode/
+.scannerwork/
+.pytest_cache/
+.ruff_cache/
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# Docker files
+data/
+
+# Environments
+.env
+.env.docker
+venv/
