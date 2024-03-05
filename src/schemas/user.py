@@ -41,12 +41,12 @@ class UserPhoneNumber(BaseModel):
 
 class UserCreate(UserEmail, UserPhoneNumber):
     """Schema to create user"""
-    pass
+    hashed_password: str
 
     model_config: dict = {"from_attributes": True}
 
 
-class UserGet(UserCreate):
+class UserGet(UserEmail, UserPhoneNumber):
     """Schema to get user"""
 
     id: int

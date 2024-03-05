@@ -1,5 +1,7 @@
 from typing import Annotated
 from pydantic import ValidationError
+from passlib.context import CryptContext
+
 
 from fastapi import Depends, status, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,6 +18,7 @@ responses = {
 }
 
 db_dependency = Annotated[AsyncSession, Depends(get_db_session)]
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 async def validation_handler(pydantic_model, data):
@@ -28,3 +31,11 @@ async def validation_handler(pydantic_model, data):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=error_msg
         )
+
+
+def get_password_hash(password: str) -> str:
+    return pwd_context.hash(password)
+
+
+def verify_password(plain_password, hashed_password) -> bool:
+    return pwd_context.verify(plain_password, hashed_password)

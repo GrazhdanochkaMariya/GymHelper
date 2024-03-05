@@ -16,6 +16,7 @@ class User(Base):
     id = Column(BigInteger, primary_key=True, index=True, nullable=False)
     phone_number = Column(String, index=True, nullable=False)
     email = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.now())
     deleted_at = Column(DateTime, nullable=True)
 
