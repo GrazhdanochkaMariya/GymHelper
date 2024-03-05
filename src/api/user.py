@@ -16,7 +16,21 @@ router = APIRouter(tags=["User"])
 async def get_user(session: db_dependency, user_id: int = Path(ge=1, le=9223372036854775807)):
     """Get User info"""
     user = await UserCRUD(session).select_one_or_none_filter_by(id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+@router.get(
+    "/users",
+    responses=responses,
+    response_model=list[UserGet],
+    summary="Get All Users",
+)
+async def get_all_users(session: db_dependency):
+    """Get all Users from db"""
+    users = await UserCRUD(session).select_all()
+    return users
 
 
 @router.post(

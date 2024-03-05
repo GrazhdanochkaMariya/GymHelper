@@ -49,7 +49,7 @@ class UserCreate(UserEmail, UserPhoneNumber):
 class UserGet(UserCreate):
     """Schema to get user"""
 
-    id: int | None = None
+    id: int
     created_at: datetime
 
     model_config: dict = {"from_attributes": True}

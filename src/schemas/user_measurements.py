@@ -14,6 +14,6 @@ class UserMeasurementsGet(BaseModel):
     waist: float
     hips: float
     created_at: datetime
-    deleted_at: datetime | None = None
+    deleted_at: Optional[datetime] = None
 
     model_config: dict = {"from_attributes": True}
