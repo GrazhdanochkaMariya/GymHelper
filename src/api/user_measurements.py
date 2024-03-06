@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Path, HTTPException, status
 
-from src.api.utils import db_dependency, responses
+from src.api.api_dependencies import db_dependency
+from src.api.utils import responses
 from src.crud.user import UserCRUD
 from src.crud.user_measurements import UserMeasurementsCRUD
 from src.schemas.user_measurements import UserMeasurementsGet

@@ -1,6 +1,8 @@
-from fastapi import APIRouter, Request, HTTPException, status, Query
+from fastapi import APIRouter, Request, HTTPException, status
 
-from src.api.utils import responses, db_dependency, verify_password, validation_handler, get_password_hash
+from src.api.api_dependencies import db_dependency
+from src.api.utils import responses, verify_password, validation_handler, get_password_hash, \
+    create_access_token
 from src.crud.user import UserCRUD
 from src.schemas.user import UserGet, UserCreate
 
@@ -13,10 +15,12 @@ router = APIRouter(tags=["Authentication"])
     responses=responses,
     summary="Sign in a user",
 )
-async def login(request: Request,
-                email: str,
-                password: str,
-                session: db_dependency):
+async def login_user(
+    request: Request,
+    email: str,
+    password: str,
+    session: db_dependency
+):
     """Sign in a user"""
     user = await UserCRUD(session).select_one_or_none_filter_by(email=email)
     if not user:
@@ -27,6 +31,9 @@ async def login(request: Request,
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid password"
         )
+    access_token = create_access_token({"sub": str(user.id)})
+    request.session.update({"token": access_token})
+
     return user
 
 
@@ -37,10 +44,11 @@ async def login(request: Request,
     summary="Create User",
 )
 async def signup_user(
-        session: db_dependency,
-        password: str,
-        phone_number: str,
-        email: str,
+    request: Request,
+    session: db_dependency,
+    password: str,
+    phone_number: str,
+    email: str,
 ):
     """Create User"""
     data = {
@@ -57,4 +65,22 @@ async def signup_user(
         )
 
     user = await UserCRUD(session).create(**data)
+
+    access_token = create_access_token({"sub": str(user.id)})
+    request.session.update({"token": access_token})
+
     return user
+
+
+@router.post(
+    "/logout",
+    responses=responses,
+    summary="Log out User",
+)
+async def logout_user(
+    request: Request,
+):
+    """Log out from User account"""
+    request.session.clear()
+
+    return True

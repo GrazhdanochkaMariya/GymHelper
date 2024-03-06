@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Path, Query, HTTPException, status, Response
+from fastapi import APIRouter, Path, HTTPException, status, Response
 
-from src.api.utils import db_dependency, responses, validation_handler
+from src.api.api_dependencies import db_dependency
+from src.api.utils import responses
 from src.crud.user import UserCRUD
-from src.schemas.user import UserGet, UserCreate
+from src.schemas.user import UserGet
 
 router = APIRouter(tags=["User"])
 
