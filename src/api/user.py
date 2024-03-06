@@ -14,7 +14,9 @@ router = APIRouter(tags=["User"])
     response_model=UserGet,
     summary="Get User information",
 )
-async def get_user(session: db_dependency, user_id: int = Path(ge=1, le=9223372036854775807)):
+async def get_user(
+    session: db_dependency, user_id: int = Path(ge=1, le=9223372036854775807)
+):
     """Get User info"""
     user = await UserCRUD(session).select_one_or_none_filter_by(id=user_id)
     if not user:
@@ -43,6 +45,8 @@ async def delete_user_by_id(
 
     exist_user = await UserCRUD(session).select_one_or_none_filter_by(id=user_id)
     if not exist_user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
     await UserCRUD(session).delete_rows_filer_by(id=user_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
