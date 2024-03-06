@@ -10,7 +10,9 @@ DATABASE_URL = settings.get_async_database_url()
 DATABASE_PARAMS = {}
 
 engine = create_async_engine(DATABASE_URL, **DATABASE_PARAMS)
-async_session_maker = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+async_session_maker = async_sessionmaker(
+    engine, class_=AsyncSession, expire_on_commit=False
+)
 
 Base = declarative_base()
 
@@ -23,4 +25,3 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
         except exc.SQLAlchemyError as e:
             await session.rollback()
             raise e
-
