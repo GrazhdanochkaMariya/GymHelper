@@ -3,8 +3,9 @@ from datetime import datetime
 from fastapi import Depends
 
 from typing import Annotated
+
+from jose import jwt, JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
-from jose import JWTError, jwt
 
 from config import settings
 from src.api.exceptions import (
