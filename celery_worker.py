@@ -6,7 +6,7 @@ from celery import Celery
 from celery.schedules import crontab
 from dotenv import load_dotenv
 
-from src.api.utils import db_dependency
+from src.api.api_dependencies import db_dependency
 from src.crud.user import UserCRUD
 
 load_dotenv(".env")
@@ -21,9 +21,9 @@ celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL")
 celery.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND")
 
 celery.conf.beat_schedule = {
-    'send_daily_report': {
-        'task': 'celery_worker.send_daily_report',
-        'schedule': crontab(hour="18", minute="0"),
+    "send_daily_report": {
+        "task": "celery_worker.send_daily_report",
+        "schedule": crontab(hour="18", minute="0"),
     },
 }
 
@@ -31,15 +31,15 @@ celery.conf.beat_schedule = {
 def get_email_template_dashboard(user_email: str):
     """Email template"""
     email = EmailMessage()
-    email['Subject'] = 'Daily email'
-    email['From'] = SMTP_USER
-    email['To'] = user_email
+    email["Subject"] = "Daily email"
+    email["From"] = SMTP_USER
+    email["To"] = user_email
 
     email.set_content(
-        '<div>'
-        f'<h1 style="color: red;">Hello. This is your daily notification</h1>'
-        '</div>',
-        subtype='html'
+        "<div>"
+        f'<h1 style="color: red;">Hello. This is your daily notification</h1>'  # noqa
+        "</div>",
+        subtype="html",
     )
     return email
 

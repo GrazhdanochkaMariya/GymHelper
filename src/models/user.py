@@ -21,6 +21,7 @@ class User(Base):
     deleted_at = Column(DateTime, nullable=True)
 
     measurements = relationship("UserMeasurements", back_populates="user")
+    workouts = relationship("Workout", back_populates="user")
 
 
 class UserMeasurements(Base):
@@ -32,11 +33,11 @@ class UserMeasurements(Base):
 
     id = Column(BigInteger, primary_key=True, index=True, nullable=False)
     user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
-    weight = Column(Float, nullable=False)
-    height = Column(Float, nullable=False)
-    biceps = Column(Float, nullable=False)
-    waist = Column(Float, nullable=False)
-    hips = Column(Float, nullable=False)
+    weight = Column(Float, nullable=True)
+    height = Column(Float, nullable=True)
+    biceps = Column(Float, nullable=True)
+    waist = Column(Float, nullable=True)
+    hips = Column(Float, nullable=True)
     created_at = Column(DateTime, default=datetime.now())
     deleted_at = Column(DateTime, nullable=True)
 
