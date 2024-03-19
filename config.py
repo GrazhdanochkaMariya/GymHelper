@@ -8,22 +8,26 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     app_name: str = "Workout Tracker Project API"
-    app_summary: str = ("Sport Goals Tracker is a FastAPI-based application"
-                        " designed to help users set and track their sports"
-                        " goals, such as running distance, gym workout sets,"
-                        " or workout duration. It utilizes websockets for"
-                        " real-time progress updates and Redis for caching"
-                        " progress and user statistics.")
+    app_summary: str = (
+        "Sport Goals Tracker is a FastAPI-based application"
+        " designed to help users set and track their sports"
+        " goals, such as running distance, gym workout sets,"
+        " or workout duration. It utilizes websockets for"
+        " real-time progress updates and Redis for caching"
+        " progress and user statistics."
+    )
 
-    app_description: str = ("Sport Goals Tracker is a comprehensive application"
-                            " that allows users to set and track their fitness"
-                            " goals. It provides a user-friendly interface for"
-                            " creating scheduled workouts, tracking progress"
-                            " over time, and engaging with a community of"
-                            " like-minded individuals. The app also features"
-                            " a chat function for communication among users"
-                            " and a curated selection of articles on fitness"
-                            " and health topics.")
+    app_description: str = (
+        "Sport Goals Tracker is a comprehensive application"
+        " that allows users to set and track their fitness"
+        " goals. It provides a user-friendly interface for"
+        " creating scheduled workouts, tracking progress"
+        " over time, and engaging with a community of"
+        " like-minded individuals. The app also features"
+        " a chat function for communication among users"
+        " and a curated selection of articles on fitness"
+        " and health topics."
+    )
 
     # SECRET KEY IS USED FOR SECURING AUTH
     SECRET_KEY: str
@@ -44,6 +48,7 @@ class Settings(BaseSettings):
     DATABASE_PASSWORD: str
     DATABASE_HOST: str
     DATABASE_PORT: str
+    TEST_DATABASE_NAME: str
 
     # CORS
     CORS_ORIGINS: list[str] = ["*"]
@@ -55,6 +60,14 @@ class Settings(BaseSettings):
             f"postgresql+asyncpg://{self.DATABASE_USER}:"
             f"{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:"
             f"{self.DATABASE_PORT}/{self.DATABASE_NAME}"
+        )
+        return database_url
+
+    def get_async_test_database_url(self):
+        database_url = (
+            f"postgresql+asyncpg://{self.DATABASE_USER}:"
+            f"{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:"
+            f"{self.DATABASE_PORT}/{self.TEST_DATABASE_NAME}"
         )
         return database_url
 

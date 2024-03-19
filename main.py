@@ -16,6 +16,13 @@ app.include_router(user_router)
 app.include_router(user_measurements_router)
 app.include_router(workout_router)
 
+origins = [
+    "http://localhost.tiangolo.com",
+    "https://localhost.tiangolo.com",
+    "http://localhost",
+    "http://localhost:8080",
+]
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -23,7 +30,13 @@ app.add_middleware(
     allow_origin_regex=settings.CORS_ORIGINS_REGEX,
     allow_credentials=True,
     allow_methods=("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"),
-    allow_headers=settings.CORS_HEADERS,
+    allow_headers=[
+        "Content-Type",
+        "Set-Cookie",
+        "Access-Control-Allow-Headers",
+        "Access-Control-Allow-Origin",
+        "Authorization",
+    ],
 )
 app.add_middleware(
     SessionMiddleware,

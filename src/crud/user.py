@@ -16,9 +16,7 @@ class UserCRUD(BaseCRUD):
         result = await self.session.execute(query)
         return result.scalars().all()
 
-    async def update_delete_field(
-        self, user_id: str
-    ):
+    async def update_delete_field(self, user_id: int):
         query = (
             update(self.model)
             .where(self.model.id == user_id)

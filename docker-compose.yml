@@ -10,12 +10,17 @@ services:
       - .env
     ports:
       - "8000:80"
+    volumes:
+      - .:/gym-helper/
+      - ../static_files:/media
     depends_on:
       - postgres
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       retries: 5
+    environment:
+      - WATCHFILES_FORCE_POLLING=true
     restart: always
 
   postgres:
