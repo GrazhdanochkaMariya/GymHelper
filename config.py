@@ -55,6 +55,19 @@ class Settings(BaseSettings):
     CORS_ORIGINS_REGEX: str = ""
     CORS_HEADERS: list[str]
 
+    # Timezone
+    TZ: str
+
+    # SMTP service
+    SMTP_USER: str
+    SMTP_PASSWORD: str
+    SMTP_HOST: str
+    SMTP_PORT: str
+
+    # Broker
+    CELERY_BROKER_URL: str
+    CELERY_RESULT_BACKEND: str
+
     def get_async_database_url(self):
         database_url = (
             f"postgresql+asyncpg://{self.DATABASE_USER}:"
@@ -68,6 +81,14 @@ class Settings(BaseSettings):
             f"postgresql+asyncpg://{self.DATABASE_USER}:"
             f"{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:"
             f"{self.DATABASE_PORT}/{self.TEST_DATABASE_NAME}"
+        )
+        return database_url
+
+    def get_database_url(self):
+        database_url = (
+            f"postgresql://{self.DATABASE_USER}:"
+            f"{self.DATABASE_PASSWORD}@{self.DATABASE_HOST}:"
+            f"{self.DATABASE_PORT}/{self.DATABASE_NAME}"
         )
         return database_url
 
