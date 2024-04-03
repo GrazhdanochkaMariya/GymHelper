@@ -32,7 +32,7 @@ class UserMeasurements(Base):
     __tablename__ = "user_measurements"
 
     id = Column(BigInteger, primary_key=True, index=True, nullable=False)
-    user_id = Column(BigInteger, ForeignKey("users.id"), nullable=False)
+    user_id = Column(BigInteger, ForeignKey("users.id"), index=True, nullable=False)
     weight = Column(Float, nullable=True)
     height = Column(Float, nullable=True)
     biceps = Column(Float, nullable=True)

@@ -11,7 +11,7 @@ router = APIRouter(tags=["Exercise"])
 
 
 @router.post(
-    "/exercise",
+    "/exercises",
     responses=responses,
     response_model=ExerciseGet,
     summary="Create exercise",
@@ -34,3 +34,18 @@ async def create_exercise(
     }
     exercise = await ExerciseCRUD(session).create(**exercise_data)
     return exercise
+
+
+@router.get(
+    "/exercises/{workout_id}",
+    responses=responses,
+    summary="Get all exercises by workout id",
+)
+async def get_workout_exercises(
+    session: db_dependency,
+    workout_id: int,
+):
+    """Get all exercises for User workout by workout id"""
+
+    exercises = await ExerciseCRUD(session).select_all_filter_by(workout_id=workout_id)
+    return exercises

@@ -52,7 +52,7 @@ services:
   celery_worker:
     container_name: celery_worker
     build: .
-    command: celery -A celery_worker.celery worker --loglevel=info
+    command: celery -A celery_worker worker --loglevel=info --hostname=celery@%n
     volumes:
       - .:/gym-helper
     environment:
@@ -62,10 +62,25 @@ services:
       - gym-helper
       - redis
 
+  celery_beat:
+    container_name: celery_beat
+    build: .
+    command: celery -A celery_worker beat --loglevel=info
+    volumes:
+      - .:/gym-helper
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - PYTHONPATH=/gym-helper
+    depends_on:
+      - celery_worker
+      - redis
+      - gym-helper
+
   flower:
     container_name: flower
     build: .
-    command: celery -A celery_worker.celery flower --port=5555
+    command: celery -A celery_worker flower --port=5555
     ports:
       - "5556:5555"
     environment:

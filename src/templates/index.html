@@ -4,10 +4,55 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    {% block head %}{% endblock %}
+    <title>Sport Goals Tracker</title>
 </head>
-<body>
-    <h1>Welcome to Sport Goals Tracker</h1>
-    <p>Start setting and tracking your sports goals today!</p>
+<body class="bg-gradient-to-r from-blue-400 to-purple-500 font-sans antialiased">
+    <div class="container mx-auto px-5 py-8">
+        <div class="flex justify-between items-start mb-1">
+            <a href="/pages/base" class="text-4xl font-bold text-white">Sport Goals Tracker</a>
+            <div class="flex space-x-4">
+                {% if not user %}
+                    <a href="/pages/login" class="bg-white text-gray-800 py-2 px-4 rounded">Login</a>
+                    <a href="/pages/signup" class="bg-white text-gray-800 py-2 px-4 rounded">Sign Up</a>
+                {% else %}
+                    <button type="button" onclick="logoutUser()" class="bg-white text-gray-800 py-2 px-4 rounded">Logout</button>
+                    <a href="/pages/user/" class="bg-white text-gray-800 py-2 px-4 rounded">My profile</a>
+                    <a href="/pages/workouts/" class="bg-white text-gray-800 py-2 px-4 rounded">My workouts</a>
+                    <a href="/pages/measurements/" class="bg-white text-gray-800 py-2 px-4 rounded">My measurements</a>
+                {% endif %}
+            </div>
+        </div>
+        <script>
+    // Function to log out a user
+    async function logoutUser() {
+        try {
+            const url = `/logout`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                window.location.replace("http://127.0.0.1:8000/pages/base");
+            } else {
+                const responseData = await response.json();
+                alert('Login failed: ' + responseData.detail);
+            }
+        } catch (error) {
+            console.error('Error during login:', error);
+            alert('Login failed. Please try again later.');
+        }
+    }
+</script>
+        <p class="text-lg text-gray-200 mb-6">Start setting and tracking your sports goals today!</p>
+        <hr class="border-t border-gray-300 my-8">
+        <div id="content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
 </body>
 </html>

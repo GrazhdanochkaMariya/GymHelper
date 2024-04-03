@@ -1,14 +1,17 @@
+import smtplib
 from datetime import timedelta, datetime
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from typing import Union
 from pydantic import ValidationError
 from passlib.context import CryptContext
 from jose import jwt
 
 
-from fastapi import status, HTTPException, Request
+from fastapi import status, HTTPException
 
 from config import settings
-from src.api.exceptions import TokenAbsentException
 from src.schemas.base import MessageResponse
 
 responses = {
@@ -58,16 +61,33 @@ def create_access_token(
     return encoded_jwt
 
 
-def get_token(request: Request):
-    token_cookies = request.cookies.get("token")
-    if token_cookies:
-        return token_cookies
+def get_email_template_measurements(user_email: str):
+    """Email template"""
+    email = MIMEMultipart()
+    email["Subject"] = "Email with measurements"
+    email["From"] = settings.SMTP_USER
+    email["To"] = user_email
 
-    token_headers = request.headers.get("Authorization")
-    if token_headers:
-        if token_headers.startswith("Bearer "):
-            token = token_headers.split(" ")[1]
-            return token
+    text_part = MIMEText(
+        "<h1 style='color: red;'>Dear user, here are your measurements</h1>", "html"
+    )
+    email.attach(text_part)
 
-    raise TokenAbsentException()
+    return email
 
+
+def send_single_email(email: str, attachment=None):
+    """Send single email with attachment"""
+    email_msg = get_email_template_measurements(email)
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    filename = f"user_measurements_{timestamp}"
+
+    if attachment:
+        attachment_part = MIMEApplication(
+            attachment.getvalue(), Name="measurements.xlsx"
+        )
+        attachment_part["Content-Disposition"] = f"attachment; filename={filename}.xlsx"
+        email_msg.attach(attachment_part)
+    with smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+        server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+        server.send_message(email_msg)

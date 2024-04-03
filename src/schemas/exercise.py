@@ -10,5 +10,5 @@ class ExerciseCreate(BaseModel):
     repetitions: int
 
 
-class ExerciseGet(BaseModel):
+class ExerciseGet(ExerciseCreate):
     id: int

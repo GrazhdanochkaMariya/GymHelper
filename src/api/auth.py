@@ -13,6 +13,8 @@ from src.schemas.user import UserGet, UserCreate
 
 router = APIRouter(tags=["Authentication"])
 
+# TODO Add profile photo
+
 
 @router.post(
     "/login",
@@ -24,6 +26,7 @@ async def login_user(
     request: Request, email: str, password: str, session: db_dependency
 ):
     """Sign in a user"""
+
     user = await UserCRUD(session).select_one_or_none_filter_by(email=email)
     if not user:
         raise HTTPException(
@@ -69,7 +72,6 @@ async def signup_user(
         )
 
     user = await UserCRUD(session).create(**data)
-
     access_token = create_access_token({"sub": str(user.id)})
     request.session.update({"token": access_token})
 
