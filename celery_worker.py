@@ -10,7 +10,7 @@ from src.db.session import sync_session_maker
 from src.models import User
 
 logger = logging.getLogger(__name__)
-schedule_time = crontab(minute="*/1")
+schedule_time = crontab(hour="17", minute="30")
 
 celery = Celery(
     "tasks", broker=settings.CELERY_BROKER_URL, backend=settings.CELERY_RESULT_BACKEND

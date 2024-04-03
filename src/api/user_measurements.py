@@ -1,13 +1,11 @@
-import datetime
 from typing import Union
 
 from fastapi import APIRouter, Path, HTTPException, status
 from io import BytesIO
 import pandas as pd
-from starlette.responses import StreamingResponse
 
 from src.api.api_dependencies import db_dependency
-from src.api.utils import responses
+from src.api.utils import responses, send_single_email
 from src.crud.user import UserCRUD
 from src.crud.user_measurements import UserMeasurementsCRUD
 from src.schemas.user_measurements import UserMeasurementsGet
@@ -65,36 +63,33 @@ async def get_user_measurements(
 
 
 @router.get(
-    "user-measurements/export/{user_id}",
+    "/user-measurements/export/{user_id}",
     responses=responses,
+    summary="Send User measurements in excel to email",
 )
-async def export_to_excel(session: db_dependency, user_id: int):
-    """Export user_measurements to an Excel file"""
+async def export_to_excel_and_send_email(session: db_dependency, user_id: int):
+    """Export user_measurements to an Excel file and send it to users email"""
+    # TODO make as a background task
     user_measurements = await UserMeasurementsCRUD(session).select_all_filter_by(
         user_id=user_id
     )
+    user = await UserCRUD(session).select_one_or_none_filter_by(id=user_id)
+
     data = [
         {
-            "user_id": user_measurement.user_id,
             "weight": user_measurement.weight,
             "height": user_measurement.height,
             "biceps": user_measurement.biceps,
             "waist": user_measurement.waist,
             "hips": user_measurement.hips,
-            "created_at": user_measurement.created_at,
+            "created_at": user_measurement.created_at.strftime("%Y-%m-%d %H:%M"),
         }
         for user_measurement in user_measurements
     ]
     df = pd.DataFrame.from_records(data)
-
+    # TODO integration with Amazon S3
     excel_file = BytesIO()
     df.to_excel(excel_file, index=False, sheet_name="Sheet1")
     excel_file.seek(0)
-
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"user_measurements_{timestamp}"
-    return StreamingResponse(
-        excel_file,
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f"attachment; filename={filename}.xlsx"},
-    )
+    send_single_email(email=user.email, attachment=excel_file)
+    return None

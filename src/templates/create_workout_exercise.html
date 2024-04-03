@@ -1,0 +1,51 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-semibold mb-4">Add exercise</h2>
+    <form id="exerciseForm">
+        <input type="hidden" id="workout_id" value="{{ request.path_params.workout_id }}">
+        <input type="name" id="name" placeholder="Name" autocomplete="Name" class="block w-full rounded-md mb-4">
+        <input type="description" id="description" placeholder="Description" autocomplete="current-password" class="block w-full rounded-md mb-4">
+        <input type="sets" id="sets" placeholder="Sets" autocomplete="Sets" class="block w-full rounded-md mb-4">
+        <input type="repetitions" id="repetitions" placeholder="Repetitions" autocomplete="Repetitions" class="block w-full rounded-md mb-4">
+        <button type="button" onclick="exerciseForm()" class="bg-blue-500 text-white py-2 px-4 rounded-md">Create</button>
+    </form>
+</div>
+
+<script>
+    // Function to create exercise
+    async function exerciseForm() {
+        const workoutId = document.getElementById('workout_id').value;
+        const name = document.getElementById('name').value;
+        const description = document.getElementById('description').value;
+        const sets = document.getElementById('sets').value;
+        const repetitions = document.getElementById('repetitions').value;
+
+        if (!name || !sets || !repetitions) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        try {
+            const url = `/exercises?name=${encodeURIComponent(name)}&description=${encodeURIComponent(description)}&sets=${encodeURIComponent(sets)}&repetitions=${encodeURIComponent(repetitions)}&workout_id=${encodeURIComponent(workoutId)}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                window.location.replace("http://127.0.0.1:8000/pages/workouts/");
+            } else {
+                const responseData = await response.json();
+                alert('Creation failed: ' + responseData.detail);
+            }
+        } catch (error) {
+            console.error('Error during creation:', error);
+            alert('Creation failed. Please try again later.');
+        }
+    }
+</script>
+{% endblock %}

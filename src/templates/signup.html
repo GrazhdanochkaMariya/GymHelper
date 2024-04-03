@@ -1,0 +1,47 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-semibold mb-4">Registration</h2>
+    <form id="registrationForm">
+        <input type="email" id="email" placeholder="Email" autocomplete="username" class="block w-full rounded-md mb-4">
+        <input type="password" id="password" placeholder="Password" autocomplete="current-password" class="block w-full rounded-md mb-4">
+        <input type="text" id="phoneNumber" placeholder="Phone Number" class="block w-full rounded-md mb-4">
+        <button type="button" onclick="registerUser()" class="bg-blue-500 text-white py-2 px-4 rounded-md">Register</button>
+    </form>
+</div>
+
+<script>
+    // Function to register a user
+    async function registerUser() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const phoneNumber = document.getElementById('phoneNumber').value;
+
+        if (!email || !password || !phoneNumber) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        try {
+            const url = `/signup?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}&phone_number=${encodeURIComponent(phoneNumber)}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                window.location.replace("http://127.0.0.1:8000/pages/base");
+            } else {
+                const responseData = await response.json();
+                alert('Registration failed: ' + responseData.detail);
+            }
+        } catch (error) {
+            console.error('Error during registration:', error);
+            alert('Registration failed. Please try again later.');
+        }
+    }
+</script>
+{% endblock %}

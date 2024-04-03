@@ -36,7 +36,11 @@ async def get_all_users(session: db_dependency):
     return users
 
 
-@router.delete("/{user_id}", responses=responses)
+@router.delete(
+    "/{user_id}",
+    responses=responses,
+    summary="Delete User by id",
+)
 async def delete_user_by_id(
     user_id: int,
     session: db_dependency,

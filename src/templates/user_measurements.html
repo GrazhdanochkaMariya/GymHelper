@@ -1,0 +1,50 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="mt-8">
+    <h2 class="text-3xl font-bold text-white mb-2">User Measurements</h2>
+    <button type="button" onclick="sendMeasurements()" class="bg-yellow-500 text-white py-2 px-4 rounded-md">Send my measurements to email</button>
+
+    {% if measurements %}
+        <div class="grid grid-cols-4 gap-4">
+            {% for measurement in measurements %}
+                <div class="bg-blue-100 p-4 rounded-lg">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ measurement.created_at.strftime('%Y-%m-%d %H:%M') }}</h3>
+                    <p>Weight: {{ measurement.weight }}</p>
+                    <p>Height: {{ measurement.height }}</p>
+                    <p>Biceps: {{ measurement.biceps }}</p>
+                    <p>Waist: {{ measurement.waist }}</p>
+                    <p>Hips: {{ measurement.hips }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No measurements found for this user.</p>
+    {% endif %}
+</div>
+<script>
+async function sendMeasurements() {
+    const userId = {{ user.id }};
+
+    try {
+        const url = `/user-measurements/export/${userId}`;
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            window.location.replace("http://127.0.0.1:8000/pages/measurements/");
+        } else {
+            const responseData = await response.json();
+            alert('Export failed: ' + responseData.detail);
+        }
+    } catch (error) {
+        console.error('Error during export:', error);
+        alert('Export failed. Please try again later.');
+    }
+}
+</script>
+{% endblock %}
