@@ -1,0 +1,53 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-semibold mb-4">Add measurement</h2>
+    <form id="exerciseForm">
+        <input type="hidden" id="user_id" value="{{ request.path_params.user_id }}">
+        <input type="weight" id="weight" placeholder="Weight" autocomplete="Weight" class="block w-full rounded-md mb-4">
+        <input type="height" id="height" placeholder="Height" autocomplete="Height" class="block w-full rounded-md mb-4">
+        <input type="biceps" id="biceps" placeholder="Biceps" autocomplete="Biceps" class="block w-full rounded-md mb-4">
+        <input type="waist" id="waist" placeholder="Waist" autocomplete="Waist" class="block w-full rounded-md mb-4">
+        <input type="hips" id="hips" placeholder="Hips" autocomplete="Hips" class="block w-full rounded-md mb-4">
+        <button type="button" onclick="measurementForm()" class="bg-blue-500 text-white py-2 px-4 rounded-md">Add</button>
+    </form>
+</div>
+
+<script>
+    // Function to create measurement
+    async function measurementForm() {
+        const userId = document.getElementById('user_id').value;
+        const weight = document.getElementById('weight').value;
+        const height = document.getElementById('height').value;
+        const biceps = document.getElementById('biceps').value;
+        const waist = document.getElementById('waist').value;
+        const hips = document.getElementById('hips').value;
+
+        if (!weight || !biceps) {
+            alert('Please fill in weight and biceps fields');
+            return;
+        }
+
+        try {
+            const url = `/user-measurements?weight=${encodeURIComponent(weight)}&height=${encodeURIComponent(height)}&biceps=${encodeURIComponent(biceps)}&waist=${encodeURIComponent(waist)}&hips=${encodeURIComponent(hips)}&user_id=${encodeURIComponent(userId)}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                window.location.replace("http://127.0.0.1:8000/pages/measurements/");
+            } else {
+                const responseData = await response.json();
+                alert('Creation failed: ' + responseData.detail);
+            }
+        } catch (error) {
+            console.error('Error during creation:', error);
+            alert('Creation failed. Please try again later.');
+        }
+    }
+</script>
+{% endblock %}

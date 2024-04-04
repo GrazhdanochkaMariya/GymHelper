@@ -83,3 +83,36 @@ async def get_users_measurements(
         "user_measurements.html",
         {"request": request, "measurements": user_measurements, "user": user},
     )
+
+
+@router.get("/plots/")
+async def get_measurements_plots(
+    request: Request, session: db_dependency, user: User = Depends(get_current_user)
+):
+    user_measurements = await UserMeasurementsCRUD(session).select_all_filter_by(
+        user_id=user.id
+    )
+    user_data = [
+        (measurement.created_at.strftime("%Y-%m-%d %H:%M"), measurement.weight)
+        for measurement in user_measurements
+    ]
+    print(user_data)
+
+    return templates.TemplateResponse(
+        "user_measurements_plots.html",
+        {
+            "request": request,
+            "measurements": user_measurements,
+            "user": user,
+            "user_data": user_data,
+        },
+    )
+
+
+@router.get("/add-measurement/{user_id}")
+async def get_create_measurement_page(
+    request: Request, user: User = Depends(get_current_user)
+):
+    return templates.TemplateResponse(
+        "create_user_measurement.html", {"request": request, "user": user}
+    )

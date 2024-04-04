@@ -1,17 +1,20 @@
+import os
 import smtplib
 from datetime import timedelta, datetime
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from typing import Union
+from typing import Union, List
 from pydantic import ValidationError
 from passlib.context import CryptContext
 from jose import jwt
+import matplotlib.pyplot as plt
 
 
 from fastapi import status, HTTPException
 
 from config import settings
+from src.models import UserMeasurements
 from src.schemas.base import MessageResponse
 
 responses = {
@@ -91,3 +94,29 @@ def send_single_email(email: str, attachment=None):
     with smtplib.SMTP_SSL(settings.SMTP_HOST, settings.SMTP_PORT) as server:
         server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
         server.send_message(email_msg)
+
+
+def create_dynamics_plot(user_measurements: List[UserMeasurements], plots_dir: str):
+    weights = [measurement.weight for measurement in user_measurements]
+    dates = [
+        measurement.created_at.strftime("%Y-%m-%d %H:%M")
+        for measurement in user_measurements
+    ]
+
+    user_id = user_measurements[0].user_id
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    plot_name = f"measurements_plot_{user_id}_{timestamp}"
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(dates, weights, marker="o", color="blue", linestyle="-")
+    plt.title("Weight Dynamics")
+    plt.xlabel("Date")
+    plt.ylabel("Weight")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
+    plot_path = os.path.join(plots_dir, f"{plot_name}.png")
+    plt.savefig(plot_path)
+    plt.close()
+
+    return plot_path

@@ -3,7 +3,12 @@
 {% block content %}
 <div class="mt-8">
     <h2 class="text-3xl font-bold text-white mb-2">User Measurements</h2>
-    <button type="button" onclick="sendMeasurements()" class="bg-yellow-500 text-white py-2 px-4 rounded-md">Send my measurements to email</button>
+    <div style="margin-bottom: 10px;">
+        <button type="button" onclick="sendMeasurements()" class="bg-yellow-500 text-white py-2 px-4 rounded-md" style="display:inline-block; width:auto; margin-right: 10px;">Send my measurements to email</button>
+        <a href="/pages/add-measurement/{{ user.id }}" class="bg-yellow-500 text-white py-2 px-4 rounded-md" style="display:inline-block; width:auto; margin-right: 10px;">Add measurement</a>
+        <a href="#" class="bg-yellow-500 text-white py-2 px-4 rounded-md" onclick="showPlots()" style="display:inline-block; width:auto;">Show my plots</a>
+    </div>
+
 
     {% if measurements %}
         <div class="grid grid-cols-4 gap-4">
@@ -21,6 +26,8 @@
     {% else %}
         <p>No measurements found for this user.</p>
     {% endif %}
+
+
 </div>
 <script>
 async function sendMeasurements() {
@@ -45,6 +52,21 @@ async function sendMeasurements() {
         console.error('Error during export:', error);
         alert('Export failed. Please try again later.');
     }
+}
+
+async function showPlots() {
+try {
+    const response = await fetch('/pages/plots');
+    if (response.ok) {
+        window.location.href = '/pages/plots';
+    } else {
+        const responseData = await response.json();
+        alert('Error: ' + responseData.message);
+    }
+} catch (error) {
+    console.error('Error while fetching plots:', error);
+    alert('Error: Unable to fetch plots.');
+}
 }
 </script>
 {% endblock %}
