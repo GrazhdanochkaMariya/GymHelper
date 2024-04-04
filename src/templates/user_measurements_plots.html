@@ -1,0 +1,46 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-semibold mb-4">Measurements Plots</h2>
+
+    {% if user_data %}
+        <div id="plot-container" style="width: 50%; height: 400px;"></div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    function drawPlot(data) {
+        const dates = data.map(entry => entry[0]);
+        const weights = data.map(entry => entry[1]);
+
+        const plotDiv = document.getElementById('plot-container');
+
+        const trace = {
+            x: dates,
+            y: weights,
+            type: 'scatter',
+            mode: 'lines+markers',
+            marker: {color: 'blue'},
+            line: {shape: 'spline'}
+        };
+
+        const layout = {
+            title: 'Weight Dynamics',
+            xaxis: {title: 'Date'},
+            yaxis: {title: 'Weight'}
+        };
+
+        Plotly.newPlot(plotDiv, [trace], layout);
+    }
+
+    window.onload = function() {
+        const userData = {{ user_data | tojson }};
+
+        if (userData) {
+            drawPlot(userData);
+        }
+    };
+</script>
+{% endblock %}
