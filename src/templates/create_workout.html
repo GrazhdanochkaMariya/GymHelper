@@ -1,0 +1,68 @@
+{% extends "index.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-semibold mb-4">Add workout</h2>
+    <form id="exerciseForm">
+        <input type="hidden" id="user_id" value="{{ user.id }}">
+        <input type="name" id="name" placeholder="Name" autocomplete="Name" class="block w-full rounded-md mb-4">
+        <input type="description" id="description" placeholder="Description" autocomplete="Description" class="block w-full rounded-md mb-4">
+        <input type="workout_date" id="workout_date" placeholder="Enter date (dd.mm.yyyy)" autocomplete="Workout_date" class="block w-full rounded-md mb-4" oninput="addDotsToDate(this)">
+        <input type="workout_time" id="workout_time" placeholder="Enter time (hh.mm)" autocomplete="Workout_time" class="block w-full rounded-md mb-4" oninput="addDotsToTime(this)">
+        <button type="button" onclick="workoutForm()" class="bg-blue-500 text-white py-2 px-4 rounded-md">Add</button>
+    </form>
+</div>
+<link href="https://cdn.jsdelivr.net/npm/datepickerjs/dist/datepicker.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/datepickerjs"></script>
+<script>
+    // Function to add dots in date field
+    function addDotsToDate(input) {
+        let value = input.value.replace(/[^0-9]/g, '');
+        value = value.slice(0, 8); //
+        const formatted = value.replace(/(\d{2})(\d)/, '$1.$2').replace(/(\d{2})(\d)/, '$1.$2');
+        input.value = formatted;
+    }
+
+    // Function to add dots in time field
+    function addDotsToTime(input) {
+        let value = input.value.replace(/[^0-9]/g, '');
+        value = value.slice(0, 4);
+        const formatted = value.replace(/(\d{2})(\d)/, '$1.$2');
+        input.value = formatted;
+    }
+
+    // Function to create workout
+    async function workoutForm() {
+        const userId = document.getElementById('user_id').value;
+        const name = document.getElementById('name').value;
+        const description = document.getElementById('description').value;
+        const workout_date = document.getElementById('workout_date').value;
+        const workout_time = document.getElementById('workout_time').value;
+
+        if (!name) {
+            alert('Please fill in name field');
+            return;
+        }
+
+        try {
+            const url = `/workout?name=${encodeURIComponent(name)}&description=${encodeURIComponent(description)}&workout_date=${encodeURIComponent(workout_date)}&workout_time=${encodeURIComponent(workout_time)}&user_id=${encodeURIComponent(userId)}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                window.location.replace("http://127.0.0.1:8000/pages/workouts/");
+            } else {
+                const responseData = await response.json();
+                alert('Creation failed: ' + responseData.detail);
+            }
+        } catch (error) {
+            console.error('Error during creation:', error);
+            alert('Creation failed. Please try again later.');
+        }
+    }
+</script>
+{% endblock %}

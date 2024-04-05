@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -16,5 +18,18 @@ class WorkoutCRUD(BaseCRUD):
             .options(selectinload(self.model.exercises))
             .where(self.model.user_id == user_id)
         )
+        result = await self.session.execute(query)
+        return result.scalars().all()
+
+    async def select_all_filter_with_date(self, user_id, workout_date):
+        query = (
+            select(self.model)
+            .options(selectinload(self.model.exercises))
+            .where(self.model.user_id == user_id)
+        )
+        if workout_date:
+            workout_date = datetime.strptime(workout_date, "%Y-%m-%d").date()
+            query = query.where(Workout.workout_date == workout_date)
+
         result = await self.session.execute(query)
         return result.scalars().all()

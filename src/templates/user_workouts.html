@@ -3,6 +3,10 @@
 {% block content %}
 <div class="mt-8">
     <h2 class="text-3xl font-bold text-white mb-2">User Workouts</h2>
+    <div style="margin-bottom: 10px;">
+        <a href="/pages/add-workout/" class="bg-yellow-500 text-white py-2 px-4 rounded-md" style="display:inline-block; width:auto; margin-right: 10px;">Add workout</a>
+
+    </div>
     {% if workouts %}
         <div class="grid grid-cols-4 gap-4">
             {% for workout in workouts %}
@@ -11,8 +15,10 @@
                     <p>Description: {{ workout.description }}</p>
                     <p>Date: {{ workout.workout_date }}</p>
                     <p>Time: {{ workout.workout_time }}</p>
-                    <a href="/pages/add-exercise/{{ workout.id }}" class="bg-white text-gray-800 py-2 px-4 rounded"> Add exercise</a>
-                    <a href="/pages/exercises/{{ workout.id }}" class="bg-white text-gray-800 py-2 px-4 rounded"> All exercises</a>
+                    <div class="mt-4">
+                        <a href="/pages/add-exercise/{{ workout.id }}" class="bg-white text-gray-800 py-2 px-4 rounded"> Add exercise</a>
+                        <a href="/pages/exercises/{{ workout.id }}" class="bg-white text-gray-800 py-2 px-4 rounded ml-2"> All exercises</a>
+                    </div>
                 </div>
             {% endfor %}
         </div>

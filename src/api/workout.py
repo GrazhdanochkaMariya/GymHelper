@@ -1,11 +1,14 @@
 import datetime
+from pathlib import Path
 from typing import Union
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status, Request
 
 from src.api.api_dependencies import db_dependency
 from src.api.utils import responses
+from src.crud.user import UserCRUD
 from src.crud.workout import WorkoutCRUD
+from src.pages.pages import templates
 from src.schemas.workout import WorkoutGet
 
 router = APIRouter(tags=["Workout"])
@@ -37,3 +40,29 @@ async def create_workout(
     }
     workout = await WorkoutCRUD(session).create(**workout_data)
     return workout
+
+
+@router.get(
+    "/workout/{user_id}",
+    responses=responses,
+    summary="Get all User workouts",
+)
+async def get_user_workouts(
+    request: Request,
+    session: db_dependency,
+    workout_date: str,
+    user_id: int = Path(ge=1, le=9223372036854775807),
+):
+    """Get all User measurements"""
+    exist_user = await UserCRUD(session).select_all_filter_by(id=user_id)
+    if not exist_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
+    workouts = await WorkoutCRUD(session).select_all_filter_with_date(
+        user_id=user_id, workout_date=workout_date
+    )
+    return templates.TemplateResponse(
+        "user_workouts.html",
+        {"request": request, "workouts": workouts, "user": exist_user},
+    )

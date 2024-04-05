@@ -116,3 +116,13 @@ async def get_create_measurement_page(
     return templates.TemplateResponse(
         "create_user_measurement.html", {"request": request, "user": user}
     )
+
+
+@router.get("/add-workout/")
+async def get_create_workout_page(
+    request: Request, user: User = Depends(get_current_user)
+):
+    # TODO include library with calendar
+    return templates.TemplateResponse(
+        "create_workout.html", {"request": request, "user": user}
+    )
