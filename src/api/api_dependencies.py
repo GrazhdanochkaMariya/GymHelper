@@ -18,6 +18,7 @@ from src.crud.user import UserCRUD
 from src.db.session import get_db_session
 from src.models import User
 
+
 db_dependency = Annotated[AsyncSession, Depends(get_db_session)]
 templates = Jinja2Templates(directory="src/templates")
 
