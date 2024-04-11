@@ -54,6 +54,7 @@ async def get_user_workouts(
     user_id: int = Path(ge=1, le=9223372036854775807),
 ):
     """Get all User measurements"""
+    # TODO add pagination
     exist_user = await UserCRUD(session).select_all_filter_by(id=user_id)
     if not exist_user:
         raise HTTPException(
@@ -66,3 +67,21 @@ async def get_user_workouts(
         "user_workouts.html",
         {"request": request, "workouts": workouts, "user": exist_user},
     )
+
+
+@router.post(
+    "/workout/done",
+    responses=responses,
+    summary="Change status is_done",
+)
+async def change_status(session: db_dependency, workout_id: int, user_id: int):
+    """Change workout status is_done"""
+    workout = await WorkoutCRUD(session).select_one_or_none_filter_by(id=workout_id)
+    if not workout:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Workout not found"
+        )
+    await WorkoutCRUD(session).update_status(workout_id=workout_id)
+    await UserCRUD(session).update_score(user_id=user_id)
+    print(user_id, workout_id)
+    return None

@@ -15,6 +15,15 @@
                     <p>Description: {{ workout.description }}</p>
                     <p>Date: {{ workout.workout_date }}</p>
                     <p>Time: {{ workout.workout_time }}</p>
+
+                    <form id="workoutForm">
+                        <input type="hidden" id="workout_id" value="{{ workout.id }}">
+                        {% if not workout.is_done %}
+                            <button type="button" onclick="isDone({{ workout.id }})" class="bg-blue-500 text-white py-1 px-4 rounded-md">Mark as done</button>
+                        {% else %}
+                            <div class="bg-green-500 text-white py-1 px-4 rounded-md">Done</div>
+                        {% endif %}
+                    </form>
                     <div class="mt-4">
                         <a href="/pages/add-exercise/{{ workout.id }}" class="bg-white text-gray-800 py-2 px-4 rounded"> Add exercise</a>
                         <a href="/pages/exercises/{{ workout.id }}" class="bg-white text-gray-800 py-2 px-4 rounded ml-2"> All exercises</a>
@@ -26,4 +35,29 @@
         <p>No workouts found for this user.</p>
     {% endif %}
 </div>
+<script>
+async function isDone(workoutId) {
+    const userId = {{ user.id }};
+
+    try {
+        const url = `/workout/done?workout_id=${encodeURIComponent(workoutId)}&user_id=${encodeURIComponent(userId)}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            window.location.replace("http://127.0.0.1:8000/pages/workouts/");
+        } else {
+            const responseData = await response.json();
+            alert('Creation failed: ' + responseData.detail);
+        }
+    } catch (error) {
+        console.error('Error during creation:', error);
+        alert('Creation failed. Please try again later.');
+    }
+}
+</script>
 {% endblock %}

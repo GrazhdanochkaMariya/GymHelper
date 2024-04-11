@@ -11,3 +11,5 @@ repos:
     rev: 23.7.0
     hooks:
       - id: black
+        files: migration/versions/546cd4dc1bb0_add_path_field_to_user.py
+

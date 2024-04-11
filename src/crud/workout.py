@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -33,3 +33,11 @@ class WorkoutCRUD(BaseCRUD):
 
         result = await self.session.execute(query)
         return result.scalars().all()
+
+    async def update_status(self, workout_id):
+        query = (
+            update(self.model).where(self.model.id == workout_id).values(is_done=True)
+        )
+
+        await self.session.execute(query)
+        await self.session.commit()
