@@ -8,6 +8,7 @@ from email.mime.text import MIMEText
 from typing import Union, List
 
 import boto3
+from botocore.exceptions import ClientError
 from pydantic import ValidationError
 from passlib.context import CryptContext
 from jose import jwt
@@ -44,6 +45,13 @@ bucket = s3.Bucket(AWS_BUCKET)
 async def s3_upload(contents: bytes, key: str):
     logger.info(f"Uploading {key} to S3")
     bucket.put_object(Key=key, Body=contents)
+
+
+async def s3_download(key: str):
+    try:
+        return s3.Object(bucket_name=AWS_BUCKET, key=key).get()["Body"].read()
+    except ClientError as ce:
+        logger.error(str(ce))
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

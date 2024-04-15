@@ -4,7 +4,7 @@ from fastapi import APIRouter, Path, HTTPException, status, Response, UploadFile
 import magic
 
 from src.api.api_dependencies import db_dependency
-from src.api.utils import responses, MB, SUPPORTED_FILE_TYPES, s3_upload
+from src.api.utils import responses, MB, SUPPORTED_FILE_TYPES, s3_upload, s3_download
 from src.crud.user import UserCRUD
 from src.schemas.user import UserGet
 
@@ -92,7 +92,31 @@ async def upload_avatar(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Unsupported file type {file_type}",
         )
-    file_name = f"{uuid4()}{SUPPORTED_FILE_TYPES[file_type]}"
+    file_name = f"{uuid4()}.{SUPPORTED_FILE_TYPES[file_type]}"
     await s3_upload(contents=contents, key=file_name)
     await UserCRUD(session).update_avatar(user_id=user_id, avatar_path=file_name)
     return file_name
+
+
+@router.get(
+    "/download-avatar",
+    responses=responses,
+    summary="Download user avatar",
+)
+async def download_avatar(
+    session: db_dependency,
+    user_id: int,
+):
+    """Download user avatar"""
+    user = await UserCRUD(session).select_one_or_none_filter_by(id=user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    contents = await s3_download(key=user.avatar_path)
+    return Response(
+        content=contents,
+        headers={
+            "Content-Disposition": f"attachment;filename={user.avatar_path}",
+            "Content-Type": "application/octet-stream",
+        },
+    )
