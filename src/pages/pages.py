@@ -1,15 +1,12 @@
 from fastapi import APIRouter, Request, Depends
-from fastapi.templating import Jinja2Templates
 
-from src.api.api_dependencies import db_dependency, get_current_user
+from src.api.api_dependencies import db_dependency, get_current_user, templates
 from src.crud.exercise import ExerciseCRUD
 from src.crud.user_measurements import UserMeasurementsCRUD
 from src.crud.workout import WorkoutCRUD
 from src.models import User
 
 router = APIRouter(prefix="/pages", tags=["Pages"])
-
-templates = Jinja2Templates(directory="src/templates")
 
 
 @router.get("/base")
@@ -115,4 +112,14 @@ async def get_create_measurement_page(
 ):
     return templates.TemplateResponse(
         "create_user_measurement.html", {"request": request, "user": user}
+    )
+
+
+@router.get("/add-workout/")
+async def get_create_workout_page(
+    request: Request, user: User = Depends(get_current_user)
+):
+    # TODO include library with calendar
+    return templates.TemplateResponse(
+        "create_workout.html", {"request": request, "user": user}
     )

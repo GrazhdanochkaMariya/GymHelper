@@ -1,3 +1,4 @@
+import logging
 import os
 import smtplib
 from datetime import timedelta, datetime
@@ -5,11 +6,13 @@ from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Union, List
+
+import boto3
+from botocore.exceptions import ClientError
 from pydantic import ValidationError
 from passlib.context import CryptContext
 from jose import jwt
 import matplotlib.pyplot as plt
-
 
 from fastapi import status, HTTPException
 
@@ -24,6 +27,32 @@ responses = {
     status.HTTP_404_NOT_FOUND: {"model": MessageResponse},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": MessageResponse},
 }
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+KB = 1024
+MB = 1024 * KB
+
+SUPPORTED_FILE_TYPES = {
+    "image/png": "png",
+    "image/jpeg": "jpg",
+}
+AWS_BUCKET = "gym-helper-bucket"
+s3 = boto3.resource("s3")
+bucket = s3.Bucket(AWS_BUCKET)
+
+
+async def s3_upload(contents: bytes, key: str):
+    logger.info(f"Uploading {key} to S3")
+    bucket.put_object(Key=key, Body=contents)
+
+
+async def s3_download(key: str):
+    try:
+        return s3.Object(bucket_name=AWS_BUCKET, key=key).get()["Body"].read()
+    except ClientError as ce:
+        logger.error(str(ce))
+
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -120,3 +149,17 @@ def create_dynamics_plot(user_measurements: List[UserMeasurements], plots_dir: s
     plt.close()
 
     return plot_path
+
+
+def update_user_level(score):
+    level_map = {
+        (0, 20): "BEGINNER",
+        (20, 50): "INTERMEDIATE",
+        (50, 80): "ADVANCED",
+        (80, 100): "EXPERT",
+    }
+
+    for range_, level in level_map.items():
+        if range_[0] <= score < range_[1]:
+            return level
+    return "MASTER"

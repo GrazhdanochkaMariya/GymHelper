@@ -3,12 +3,92 @@
 {% block content %}
 <div class="mt-8">
     <h2 class="text-3xl font-bold text-white mb-2">User Profile</h2>
-    <p class="text-pink-800 font-semibold">Hello, {{ user.id }}</p>
+    <p class="text-pink-800 font-semibold">Hello, {{ user.name }}</p>
+
+    <div class="mt-4 flex items-center justify-between">
+        <div>
+            {% if user.avatar_path %}
+                <input type="file" id="avatarInput" class="mb-2">
+                <button onclick="changeAvatar()" class="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Change avatar</button>
+                <button onclick="showAvatar()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Show avatar</button>
+            {% else %}
+                <button onclick="changeAvatar()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Download avatar</button>
+            {% endif %}
+        </div>
+
+        <div>
+            <div id="avatarPreview" style="display: none;"></div>
+        </div>
+    </div>
 
     <div class="mt-4">
+            <p><strong class="text-white">Name:</strong> <span class="text-gray-800">{{ user.name}}</span></p>
+            <p><strong class="text-white">Last name:</strong> <span class="text-gray-800">{{ user.last_name }}</span></p>
+            <p><strong class="text-white">Age:</strong> <span class="text-gray-800">{{ user.age }}</span></p>
+            <p><strong class="text-white">Score:</strong> <span class="text-gray-800">{{ user.score }}</span></p>
+            <p><strong class="text-white">Level:</strong> <span class="text-gray-800">{{ user.score_level }}</span></p>
             <p><strong class="text-white">Phone number:</strong> <span class="text-gray-800">{{ user.phone_number }}</span></p>
             <p><strong class="text-white">Email:</strong> <span class="text-gray-800">{{ user.email }}</span></p>
     </div>
 </div>
+<script>
+    // Function to upload avatar
+    async function changeAvatar() {
+        const userId = {{ user.id }};
+        const fileInput = document.getElementById('avatarInput');
+
+        try {
+            const formData = new FormData();
+            const fileInput = document.querySelector('input[type="file"]');
+            formData.append('avatar_file', fileInput.files[0]);
+
+            const response = await fetch(`/users/upload-avatar?user_id=${encodeURIComponent(userId)}`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                const newUser = await response.json();
+                const newAvatarPath = newUser.avatar_path;
+                const avatarImg = document.querySelector('img');
+                alert('Avatar changed successfully!');
+            } else {
+                const responseData = await response.json();
+                alert('Avatar change failed. Please, choose the picture.');
+            }
+        } catch (error) {
+            console.error('Error during avatar change:', error);
+            alert('Avatar change failed. Please try again later.');
+        }
+    }
+
+    async function showAvatar() {
+        const userId = {{ user.id }};
+
+        try {
+            const response = await fetch(`/download-avatar?user_id=${encodeURIComponent(userId)}`);
+
+            if (response.ok) {
+                const blob = await response.blob(); // Получаем данные изображения в виде Blob
+                const url = URL.createObjectURL(blob); // Создаем временный URL для изображения
+                const avatarImg = document.createElement('img'); // Создаем новый элемент img
+                avatarImg.src = url; // Устанавливаем временный URL в качестве источника изображения
+                avatarImg.alt = 'User avatar'; // Устанавливаем альтернативный текст для изображения
+
+                // Устанавливаем размеры изображения
+                avatarImg.style.width = '400px'; // Устанавливаем ширину
+                avatarImg.style.height = '300px'; // Устанавливаем высоту
+
+                document.body.appendChild(avatarImg); // Добавляем изображение на страницу
+            } else {
+                alert('Failed to load avatar.');
+            }
+        } catch (error) {
+            console.error('Error during avatar loading:', error);
+            alert('Failed to load avatar. Please try again later.');
+        }
+    }
+
+</script>
 
 {% endblock %}

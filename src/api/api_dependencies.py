@@ -1,6 +1,8 @@
 from datetime import datetime
 
-from fastapi import Depends, Request
+from fastapi import Depends, Request, HTTPException, status
+from fastapi.templating import Jinja2Templates
+
 
 from typing import Annotated
 
@@ -11,7 +13,6 @@ from config import settings
 from src.api.exceptions import (
     TokenExpiredException,
     UserIsNotPresentException,
-    TokenAbsentException,
 )
 from src.crud.user import UserCRUD
 from src.db.session import get_db_session
@@ -19,6 +20,7 @@ from src.models import User
 
 
 db_dependency = Annotated[AsyncSession, Depends(get_db_session)]
+templates = Jinja2Templates(directory="src/templates")
 
 
 def get_token(request: Request):
@@ -26,7 +28,10 @@ def get_token(request: Request):
     if token_cookies:
         return token_cookies
 
-    raise TokenAbsentException()
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Please, log in or register first",
+    )
 
 
 async def get_current_user(

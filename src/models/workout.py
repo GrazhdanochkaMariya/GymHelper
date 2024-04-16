@@ -1,7 +1,7 @@
 from sqlalchemy.orm import relationship
 
 from src.db.session import Base
-from sqlalchemy import Column, String, Integer, ForeignKey, Date, Time
+from sqlalchemy import Column, String, Integer, ForeignKey, Date, Time, Boolean, Float
 
 
 class Workout(Base):
@@ -17,6 +17,7 @@ class Workout(Base):
     workout_date = Column(Date, nullable=True)
     workout_time = Column(Time, nullable=True)
     user_id = Column(Integer, ForeignKey("users.id"))
+    is_done = Column(Boolean, default=True)
 
     user = relationship("User", back_populates="workouts")
     exercises = relationship("Exercise", back_populates="workout")
@@ -35,4 +36,5 @@ class Exercise(Base):
     sets = Column(Integer)
     repetitions = Column(Integer)
     workout_id = Column(Integer, ForeignKey("workouts.id"))
+    calories = Column(Float, nullable=True)
     workout = relationship("Workout", back_populates="exercises")

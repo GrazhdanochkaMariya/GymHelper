@@ -1,4 +1,4 @@
-from sqlalchemy import delete, insert, select
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -53,3 +53,8 @@ class BaseCRUD:
         self.session.add(instance)
         await self.session.commit()
         return instance
+
+    async def update(self, item_id, **data):
+        query = update(self.model).where(self.model.id == item_id).values(**data)
+        await self.session.execute(query)
+        await self.session.commit()

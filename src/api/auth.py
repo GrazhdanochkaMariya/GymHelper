@@ -23,7 +23,10 @@ router = APIRouter(tags=["Authentication"])
     summary="Sign in a user",
 )
 async def login_user(
-    request: Request, email: str, password: str, session: db_dependency
+    request: Request,
+    email: str,
+    password: str,
+    session: db_dependency,
 ):
     """Sign in a user"""
 
@@ -55,11 +58,17 @@ async def signup_user(
     password: str,
     phone_number: str,
     email: str,
+    name: str,
+    age: int,
+    last_name: str,
 ):
     """Create User"""
     data = {
         "phone_number": phone_number,
         "email": email,
+        "name": name,
+        "last_name": last_name,
+        "age": age,
         "hashed_password": get_password_hash(password),
     }
     await validation_handler(pydantic_model=UserCreate, data=data)
