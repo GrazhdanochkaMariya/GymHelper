@@ -93,8 +93,6 @@ async def get_measurements_plots(
         (measurement.created_at.strftime("%Y-%m-%d %H:%M"), measurement.weight)
         for measurement in user_measurements
     ]
-    print(user_data)
-
     return templates.TemplateResponse(
         "user_measurements_plots.html",
         {

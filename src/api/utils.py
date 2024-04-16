@@ -5,9 +5,11 @@ from datetime import timedelta, datetime
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from io import BytesIO
 from typing import Union, List
 
 import boto3
+import pandas as pd
 from botocore.exceptions import ClientError
 from pydantic import ValidationError
 from passlib.context import CryptContext
@@ -108,8 +110,17 @@ def get_email_template_measurements(user_email: str):
     return email
 
 
-def send_single_email(email: str, attachment=None):
+def precess_data(data):
+    df = pd.DataFrame.from_records(data)
+    excel_file = BytesIO()
+    df.to_excel(excel_file, index=False, sheet_name="my_measurements")
+    excel_file.seek(0)
+    return excel_file
+
+
+def send_single_measurements_email(email: str, data=None):
     """Send single email with attachment"""
+    attachment = precess_data(data)
     email_msg = get_email_template_measurements(email)
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     filename = f"user_measurements_{timestamp}"
