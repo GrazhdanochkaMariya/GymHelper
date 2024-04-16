@@ -151,14 +151,15 @@ def create_dynamics_plot(user_measurements: List[UserMeasurements], plots_dir: s
     return plot_path
 
 
-# def update_user_level(mapper, connection, target):
-#     if target.score < 20:
-#         target.score_level = TypeEnum.BEGINNER
-#     elif 20 <= target.score < 50:
-#         target.score_level = TypeEnum.INTERMEDIATE
-#     elif 50 <= target.score < 80:
-#         target.score_level = TypeEnum.ADVANCED
-#     elif 80 <= target.score < 100:
-#         target.score_level = TypeEnum.EXPERT
-#     else:
-#         target.score_level = TypeEnum.MASTER
+def update_user_level(score):
+    level_map = {
+        (0, 20): "BEGINNER",
+        (20, 50): "INTERMEDIATE",
+        (50, 80): "ADVANCED",
+        (80, 100): "EXPERT",
+    }
+
+    for range_, level in level_map.items():
+        if range_[0] <= score < range_[1]:
+            return level
+    return "MASTER"

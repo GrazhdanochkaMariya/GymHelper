@@ -6,10 +6,11 @@ repos:
     rev: v0.1.14
     hooks:
       - id: ruff
+        exclude: migration/
 
   - repo: https://github.com/psf/black
     rev: 23.7.0
     hooks:
       - id: black
-        exclude: migration/versions/546cd4dc1bb0_add_path_field_to_user.py
+        exclude: migration/
 

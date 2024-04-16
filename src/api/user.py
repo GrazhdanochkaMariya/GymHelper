@@ -23,7 +23,9 @@ async def get_user(
     """Get User info"""
     user = await UserCRUD(session).select_one_or_none_filter_by(id=user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
     return user
 
 
@@ -110,7 +112,9 @@ async def download_avatar(
     """Download user avatar"""
     user = await UserCRUD(session).select_one_or_none_filter_by(id=user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+        )
 
     contents = await s3_download(key=user.avatar_path)
     return Response(
