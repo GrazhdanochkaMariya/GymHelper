@@ -1,11 +1,9 @@
 from typing import Union
 
-from fastapi import APIRouter, Path, HTTPException, status
-from io import BytesIO
-import pandas as pd
+from fastapi import APIRouter, Path, HTTPException, status, BackgroundTasks
 
 from src.api.api_dependencies import db_dependency
-from src.api.utils import responses, send_single_email
+from src.api.utils import responses, send_single_measurements_email
 from src.crud.user import UserCRUD
 from src.crud.user_measurements import UserMeasurementsCRUD
 from src.schemas.user_measurements import UserMeasurementsGet
@@ -67,9 +65,10 @@ async def get_user_measurements(
     responses=responses,
     summary="Send User measurements in excel to email",
 )
-async def export_to_excel_and_send_email(session: db_dependency, user_id: int):
+async def export_to_excel_and_send_email(
+    session: db_dependency, user_id: int, background_tasks: BackgroundTasks
+):
     """Export user_measurements to an Excel file and send it to users email"""
-    # TODO make as a background task
     user_measurements = await UserMeasurementsCRUD(session).select_all_filter_by(
         user_id=user_id
     )
@@ -86,10 +85,8 @@ async def export_to_excel_and_send_email(session: db_dependency, user_id: int):
         }
         for user_measurement in user_measurements
     ]
-    df = pd.DataFrame.from_records(data)
-    # TODO integration with Amazon S3
-    excel_file = BytesIO()
-    df.to_excel(excel_file, index=False, sheet_name="Sheet1")
-    excel_file.seek(0)
-    send_single_email(email=user.email, attachment=excel_file)
+
+    background_tasks.add_task(
+        send_single_measurements_email(email=user.email, data=data)
+    )
     return None
